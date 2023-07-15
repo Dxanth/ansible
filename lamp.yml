@@ -1,0 +1,103 @@
+---
+
+- name: lamp stack
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: install services
+      yum:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - httpd
+        - php
+
+      notify:
+        - start services  
+
+#  - name: start httpd and php
+#    service:
+#      name: httpd
+#      state: started
+#      enabled: yes	
+  
+#  - name: create index.php "method #1"
+#    file:
+#      path: /var/www/html/index.php
+#      state: touch
+
+#  - name: create index.php and add text "method #2"
+#    shell: echo "My Website" > /var/www/html/index.php
+
+    - name: create index.php and add text "method #3"
+      shell:
+        cmd: echo "My Website" > index.php
+        chdir: /var/www/html/ 
+
+#    - name: download mysql-server
+#      get_url:
+#        url: https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+#        dest: /root/
+#        sudo rpm -ivh mysql80-community-release-el7-5.noarch.rpm
+    
+    - name: Installing Mysql and dependencies
+      package:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - epel-release
+        - mysql
+        - python3
+        - python3-PyMySQL
+        - MySQL-python
+        - mysql-server
+ 
+    - name: start and enable mysql service
+      service:
+        name: mysqld
+        state: started
+        enabled: yes
+ 
+    - name: creating mysql user (medium_post)
+#      no_log: true (hides output)
+      mysql_user:
+        name: root
+        password: "1234 "
+        login_user: root
+        login_password: "1234 "
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+ 
+    - name: creating medium_db
+      mysql_db:
+        name: lamp_db 
+        state: present
+
+    - name: Enable remote login to mysql
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^bind-address'
+        line: 'bind-address = 0.0.0.0'
+        backup: yes
+
+      notify:
+        - Restart mysql
+  
+  handlers:
+
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted
+
+    - name: start services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - httpd
+        - php
+

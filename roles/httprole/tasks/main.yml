@@ -1,0 +1,8 @@
+- name: Installing {{ package_name }} package
+  package:
+    name: "{{ package_name }}"
+    state: "{{ package_state }}"
+  notify:
+    - start {{ package_name }}
+  when:
+    - ansible_facts['distribution'] == "CentOS"

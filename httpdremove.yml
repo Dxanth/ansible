@@ -1,0 +1,11 @@
+---
+
+- name: Playbook removing httpd service
+  hosts: webservers
+  become: yes
+  tasks:
+
+  - name: Remove httpd service
+    yum:
+      name: httpd
+      state: removed

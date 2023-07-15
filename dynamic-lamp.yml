@@ -1,0 +1,10 @@
+---
+
+- name: lamp stack
+  hosts: webservers
+  become: yes
+  tasks:
+
+  roles:
+    - lamppkgs
+    - mysqlpkgs
