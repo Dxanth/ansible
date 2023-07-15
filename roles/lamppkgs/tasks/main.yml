@@ -1,0 +1,29 @@
+- name: install services
+  yum:
+    name: "{{item}}"
+    state: latest
+  loop:
+    -httpd
+    -php
+
+  notify:
+    - start services
+
+#  - name: start httpd and php
+#    service:
+#      name: httpd
+#      state: started
+#      enabled: yes
+
+#  - name: create index.php "method #1"
+#    file:
+#      path: /var/www/html/index.php
+#      state: touch
+
+#  - name: create index.php and add text "method #2"
+#    shell: echo "My Website" > /var/www/html/index.php
+
+- name: create index.php and add text "method #3"
+  shell:
+    cmd: echo "My Website" > index.php
+    chdir: /var/www/html/
